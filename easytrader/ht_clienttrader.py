@@ -121,9 +121,12 @@ class HTClientTrader(clienttrader.BaseLoginClientTrader):
         
     @property
     def balance(self):
-        self._check_top_window()
-        for c in range(2):
-            self._switch_left_menus(self._config.BALANCE_MENU_PATH)
+        for c in range(5):
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(self._config.BALANCE_MENU_PATH)
+            else:
+                self._switch_left_menus(self._config.BALANCE_MENU_PATH)
             return self._get_balance_from_statics()
 
     def _get_balance_from_statics(self):
@@ -180,9 +183,12 @@ class HTClientTrader(clienttrader.BaseLoginClientTrader):
 
     @property
     def position(self):
-        self._check_top_window()
-        for c in range(2):
-            self._switch_left_menus(["查询[F4]", "资金股票"])
+        for c in range(3):
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["查询[F4]", "资金股票"])
+            else:
+                self._switch_left_menus(["查询[F4]", "资金股票"])
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 test = test.to_dict("records") if len(test) > 0 else []
@@ -219,7 +225,7 @@ class HTClientTrader(clienttrader.BaseLoginClientTrader):
     
     def gz_nhg(self, security, price, amount, **kwargs):
         """131810：amount 必须为10的倍数"""
-        for c in range(2):
+        for c in range(3):
             self._check_top_window()
             self._switch_left_menus(["债券回购", "融券回购(逆回购)"])
             return self.bs_trade(security, price, amount, 'SELL')
