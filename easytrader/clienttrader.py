@@ -169,8 +169,33 @@ class ClientTrader(IClientTrader):
                 log.warning('_left_treeview.wait Exception')
                 self._bring_main_foreground()
                 self._check_top_window()
-            
+                
+
+        
     def _switch_left_menus(self, path):
+        def _switch_left_menus_shortcut(path):
+            test = ''.join(path)
+            if 'F1' in test:
+                self._main.TypeKeys("{F1}")
+            elif 'F2' in test:
+                self._main.TypeKeys("{F2}")
+            elif 'F3' in test:
+                self._main.TypeKeys("{F3}")
+            elif 'F4' in test and '资金股' in test:
+                self._main.TypeKeys("{F4}")
+            elif 'F5' in test:
+                self._main.TypeKeys("{F5}")
+            elif 'F6' in test:
+                self._main.TypeKeys("{F6}")
+            else:
+                pass
+                    
+        def _switch_left_menus_normal(path):
+            try:
+                self._left_treeview.Select(path)                   
+            except Exception:
+                pass
+            
         def left_menus_check():
             try:
                 if self._left_treeview.IsSelected(path):
@@ -183,38 +208,10 @@ class ClientTrader(IClientTrader):
                 return False
             
         test = ''.join(path)
-        for c in range(2):
-            if 'F1' in test:
-                self._main.TypeKeys("{F1}")
-                if left_menus_check():
-                    break
-            elif 'F2' in test:
-                self._main.TypeKeys("{F2}")
-                if left_menus_check():
-                    break
-            elif 'F3' in test:
-                self._main.TypeKeys("{F3}")
-                if left_menus_check():
-                    break
-            elif 'F4' in test and '资金股' in test:
-                self._main.TypeKeys("{F4}")
-                if left_menus_check():
-                    break
-            elif 'F5' in test:
-                self._main.TypeKeys("{F5}")
-                if left_menus_check():
-                    break
-            elif 'F6' in test:
-                self._main.TypeKeys("{F6}")
-                if left_menus_check():
-                    break
-            else:
-                try:
-                    self._left_treeview.Select(path)                   
-                except Exception:
-                    pass
-                if left_menus_check():
-                    break 
+        for f in [_switch_left_menus_shortcut, _switch_left_menus_normal]:
+            test = f(path)
+            if left_menus_check(): 
+                break
 
     def _bring_main_foreground(self):
         self._main.Minimize()
@@ -362,12 +359,7 @@ class ClientTrader(IClientTrader):
         if (b-a) < 0.5:
             time.sleep(0.5-(b-a))
             
-        
-        
-        
-        
-        
-        
+
         
     def buy(self, security, price, amount, **kwargs):
         for c in range(2):
@@ -696,7 +688,7 @@ class ClientTrader(IClientTrader):
                             return result
                         else:
                             time.sleep(0.2)
-                            io = 'b'
+                            ii = 'b'
                     else:
                         log.warning('get_pop_dialog_title: {} retry...'.format(title))         
                 else:
