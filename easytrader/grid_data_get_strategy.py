@@ -64,7 +64,7 @@ class CopyStrategy(BaseStrategy):
                 pywinauto.clipboard.EmptyClipboard()
                 time.sleep(0.05)
                 
-                if count_1 > 1 or count_2 > 1 or count_3 > 1:
+                if count_1 > 0 or count_2 > 0 or count_3 > 0:
                     grid.RightClick(coords=(50, 50)) 
                 grid.TypeKeys(r"^c")
                 
