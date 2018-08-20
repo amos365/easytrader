@@ -167,9 +167,13 @@ class YHClientTrader(clienttrader.BaseLoginClientTrader):
 
     @property
     def balance(self):
-        self._check_top_window()
         for c in range(5):
-            self._switch_left_menus(["查询[F4]", "资金股份"])
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["查询[F4]", "资金股份"])
+            else:
+                self._switch_left_menus(["查询[F4]", "资金股份"])
+
             test = self._get_grid_data(self._config.BALANCE_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 break
@@ -192,9 +196,12 @@ class YHClientTrader(clienttrader.BaseLoginClientTrader):
 
     @property
     def position(self):
-        self._check_top_window()
-        for c in range(2):
-            self._switch_left_menus(["查询[F4]", "资金股票"])
+        for c in range(3):
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["查询[F4]", "资金股票"])
+            else:
+                self._switch_left_menus(["查询[F4]", "资金股票"])
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 test = test.to_dict("records") if len(test) > 0 else []
