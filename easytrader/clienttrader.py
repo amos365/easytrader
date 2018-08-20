@@ -497,6 +497,7 @@ class ClientTrader(IClientTrader):
                     return
                 else:
                     log.warning("_type_keys: ttt.window_text()!=text...")
+                    ttt.SetEditText('')
             except Exception as e:
                 log.warning("_type_keys exception: {}...".format(e))
     
