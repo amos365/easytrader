@@ -490,14 +490,16 @@ class ClientTrader(IClientTrader):
                 
     def _type_keys(self, control_id, text):
         ttt = self._pwindow.window(control_id=control_id, class_name="Edit")
-        for c in range(2):
+        for c in range(5):
             try:
                 ttt.SetEditText(text)
+                time.sleep(0.05)
                 if ttt.window_text() == text:
                     return
                 else:
                     log.warning("_type_keys: ttt.window_text()!=text...")
                     ttt.SetEditText('')
+                    time.sleep(0.05)
             except Exception as e:
                 log.warning("_type_keys exception: {}...".format(e))
     
