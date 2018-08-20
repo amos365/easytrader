@@ -116,12 +116,13 @@ class ClientTrader(IClientTrader):
         self._app = pywinauto.Application().connect(
             path=connect_path, timeout=10
         )
-        self._close_prompt_windows()
 
         self._main = self._app.window_(title_re="网上股票交易系统")
         self._main.wait('exists enabled visible ready')
         
         self._main_handle = self._main.handle
+        
+        self._check_top_window()
         
         self._left_treeview = self._main.window_(control_id=129, class_name="SysTreeView32") 
         self._left_treeview.wait('exists enabled visible ready')
@@ -163,54 +164,54 @@ class ClientTrader(IClientTrader):
     def _get_left_treeview_ready(self):
         for c in range(2):
             try:
-                self._left_treeview.wait("ready", 1)
+                self._left_treeview.wait("ready", 2)
                 break
             except:
                 log.warning('_left_treeview.wait Exception')
                 self._bring_main_foreground()
                 self._check_top_window()
                 
-
+    def _left_menus_check(self, path):
+        try:
+            if self._left_treeview.IsSelected(path):
+                return True
+            else:
+                return False
+        except Exception as e:
+            log.warning('_switch_left_menus: {}'.format(e))
+            self._get_left_treeview_ready()
+            return False
+        
+    def _switch_left_menus_shortcut(self, path): 
+        for c in range(2):
+            try:
+                test = ''.join(path)
+                if 'F1' in test:
+                    self._main.TypeKeys("{F1}")
+                elif 'F2' in test:
+                    self._main.TypeKeys("{F2}")
+                elif 'F3' in test:
+                    self._main.TypeKeys("{F3}")
+                elif 'F4' in test and '资金股' in test:
+                    self._main.TypeKeys("{F4}")
+                elif 'F5' in test:
+                    self._main.TypeKeys("{F5}")
+                elif 'F6' in test:
+                    self._main.TypeKeys("{F6}")
+                else:
+                    self._switch_left_menus(path)
+            except Exception:
+                pass            
+            if self._left_menus_check(path): 
+                break
         
     def _switch_left_menus(self, path):
-        def _switch_left_menus_shortcut(path):
-            test = ''.join(path)
-            if 'F1' in test:
-                self._main.TypeKeys("{F1}")
-            elif 'F2' in test:
-                self._main.TypeKeys("{F2}")
-            elif 'F3' in test:
-                self._main.TypeKeys("{F3}")
-            elif 'F4' in test and '资金股' in test:
-                self._main.TypeKeys("{F4}")
-            elif 'F5' in test:
-                self._main.TypeKeys("{F5}")
-            elif 'F6' in test:
-                self._main.TypeKeys("{F6}")
-            else:
-                pass
-                    
-        def _switch_left_menus_normal(path):
+        for c in range(2):
             try:
                 self._left_treeview.Select(path)                   
             except Exception:
                 pass
-            
-        def left_menus_check():
-            try:
-                if self._left_treeview.IsSelected(path):
-                    return True
-                else:
-                    return False
-            except Exception as e:
-                log.warning('_switch_left_menus: {}'.format(e))
-                self._get_left_treeview_ready()
-                return False
-            
-        test = ''.join(path)
-        for f in [_switch_left_menus_shortcut, _switch_left_menus_normal]:
-            test = f(path)
-            if left_menus_check(): 
+            if self._left_menus_check(path): 
                 break
 
     def _bring_main_foreground(self):
@@ -226,8 +227,11 @@ class ClientTrader(IClientTrader):
 
     @property
     def balance(self):
-        for c in range(2):
-            self._switch_left_menus(self._config.BALANCE_MENU_PATH)
+        for c in range(3):
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(self._config.BALANCE_MENU_PATH)
+            else:
+                self._switch_left_menus(self._config.BALANCE_MENU_PATH)
             return self._get_balance_from_statics()
 
     def _get_balance_from_statics(self):
@@ -252,9 +256,12 @@ class ClientTrader(IClientTrader):
     # 注意，各大券商此接口重写，统一输出
     @property
     def position(self):
-        self._check_top_window()
-        for c in range(2):
-            self._switch_left_menus(["查询[F4]", "资金股票"])
+        for c in range(3):
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["查询[F4]", "资金股票"])
+            else:
+                self._switch_left_menus(["查询[F4]", "资金股票"])
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 test = test.to_dict("records") if len(test) > 0 else []
@@ -268,9 +275,12 @@ class ClientTrader(IClientTrader):
     # 注意，各大券商此接口重写，统一输出
     @property
     def today_entrusts(self):
-        self._check_top_window()
-        for c in range(2):
-            self._switch_left_menus(["查询[F4]", "当日委托"])
+        for c in range(3):
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["查询[F4]", "当日委托"])
+            else:
+                self._switch_left_menus(["查询[F4]", "当日委托"])
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 test = test.to_dict("records") if len(test) > 0 else []
@@ -284,9 +294,12 @@ class ClientTrader(IClientTrader):
     # 注意，各大券商此接口重写，统一输出
     @property
     def today_trades(self):
-        self._check_top_window()
-        for c in range(2):
-            self._switch_left_menus(["查询[F4]", "当日成交"])
+        for c in range(3):
+            self._check_top_window()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["查询[F4]", "当日成交"])
+            else:
+                self._switch_left_menus(["查询[F4]", "当日成交"])
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 test = test.to_dict("records") if len(test) > 0 else []
@@ -300,10 +313,13 @@ class ClientTrader(IClientTrader):
     # 注意，各大券商此接口重写，统一输出   
     @property
     def cancel_entrusts(self):
-        self._check_top_window()
-        self._refresh()
-        for c in range(2):
-            self._switch_left_menus(["撤单[F3]"])
+        for c in range(3):
+            self._check_top_window()
+            self._refresh()
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["撤单[F3]"])
+            else:
+                self._switch_left_menus(["撤单[F3]"])
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 test = test.to_dict("records") if len(test) > 0 else []
@@ -364,14 +380,20 @@ class ClientTrader(IClientTrader):
     def buy(self, security, price, amount, **kwargs):
         for c in range(2):
             self._check_top_window()
-            self._switch_left_menus(["买入[F1]"])
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["买入[F1]"])
+            else:
+                self._switch_left_menus(["买入[F1]"])
             return self.bs_trade(security, price, amount, action='BUY')
             log.warning("buy {}: retry...".format(security))
 
     def sell(self, security, price, amount, **kwargs):
         for c in range(2):
             self._check_top_window()
-            self._switch_left_menus(["卖出[F2]"])
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["卖出[F2]"])
+            else:
+                self._switch_left_menus(["卖出[F2]"])
             return self.bs_trade(security, price, amount, action='SELL')
             log.warning("sell {}: retry...".format(security))
 
@@ -516,7 +538,10 @@ class ClientTrader(IClientTrader):
         """
         for c in range(2):
             self._check_top_window()
-            self._switch_left_menus(["市价委托", "买入"])
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["市价委托", "买入"])
+            else:
+                self._switch_left_menus(["市价委托", "买入"])
             return self.bs_market_trade(security, amount, 'BUY', ttype)
             log.warning("market_buy {}: retry...".format(security))
 
@@ -533,7 +558,10 @@ class ClientTrader(IClientTrader):
         """
         for c in range(2):
             self._check_top_window()
-            self._switch_left_menus(["市价委托", "卖出"])
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(["市价委托", "卖出"])
+            else:
+                self._switch_left_menus(["市价委托", "卖出"])
             return self.bs_market_trade(security, amount, 'SELL', ttype)
             log.warning("market_sell {}: retry...".format(security))
 
@@ -592,6 +620,7 @@ class ClientTrader(IClientTrader):
                             selects.select(i - 1)
 
                         # 确认市价交易的价格出现!
+                        time.sleep(0.05)
                         self._wait_trade_showup(self._config.TRADE_PRICE_CONTROL_ID, "Edit") 
                         break
                 else:
@@ -604,7 +633,10 @@ class ClientTrader(IClientTrader):
             
     def auto_ipo(self):
         for c in range(2):
-            self._switch_left_menus(self._config.AUTO_IPO_MENU_PATH)
+            if c % 2 == 0:
+                self._switch_left_menus_shortcut(self._config.AUTO_IPO_MENU_PATH)
+            else:
+                self._switch_left_menus(self._config.AUTO_IPO_MENU_PATH)
             test = self._get_grid_data(self._config.COMMON_GRID_CONTROL_ID)
             if isinstance(test, pd.DataFrame):
                 stock_list = test.to_dict("records") if len(test) > 0 else []
