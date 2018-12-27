@@ -86,21 +86,19 @@ class YHClientTrader(clienttrader.BaseLoginClientTrader):
                 logie.Edit3.SetEditText(verify_code)
                 # 点击确定
                 logie['确定(&Y)'].click()
+                time.sleep(0.1)
                 # 等待登录界面关闭
                 try:
                     logie.wait_not('exists visible', timeout=10, retry_interval=None)
                     break
                 except:
-                    for w in self._app.windows(class_name="#32770"):
-                        if w.is_visible() and w.window_text() != '用户登录':
-                            w.close()
-                    time.sleep(0.1)
+                    self._app.top_window()["确定"].click()
+            time.sleep(0.5)
             # 重连客户端
             self._app = pywinauto.Application().connect(
                 path=self._run_exe_path(exe_path), timeout=10
             )
         for c in range(10):
-              
             self._main = self._app.window_(title_re="网上股票交易系统")
             try:
                 self._main.wait('exists enabled visible ready', 2)
@@ -108,17 +106,13 @@ class YHClientTrader(clienttrader.BaseLoginClientTrader):
                 break
             except:
                 self._switch_window_to_normal_mode()
-                time.sleep(3)
-        self._check_top_window() 
+                time.sleep(2)
         
         self._left_treeview = self._main.window_(control_id=129, class_name="SysTreeView32") 
         self._left_treeview.wait('exists enabled visible ready')
 
         self._pwindow = self._main.window(control_id=59649, class_name='#32770')
         self._pwindow.wait('exists enabled visible ready')
-        
-        # 等待一切就绪
-        print(self.balance)
 
         # 关闭其它窗口
         self._check_top_window()
@@ -155,15 +149,6 @@ class YHClientTrader(clienttrader.BaseLoginClientTrader):
         res = "".join(re.findall("\d+", verify_code))
         print('识别验证码', res)
         return res
-
-#         control = logie.window(control_id=22202)
-#         control.click()
-#         control.draw_outline()
-
-#         file_path = tempfile.mktemp()
-#         control.capture_as_image().save(file_path, "jpeg")
-#         verify_code = helpers.recognize_verify_code(file_path, "yh_client")
-#         return "".join(re.findall("\d+", verify_code))
 
     @property
     def balance(self):
